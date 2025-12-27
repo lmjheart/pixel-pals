@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PixelArtImage, Comment } from '../types';
-import { GET_STATUS } from '../constants';
+import { GET_STATUS, ADMIN_NAME } from '../constants';
 
 interface ImageCardProps {
   image: PixelArtImage;
@@ -19,7 +19,10 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, currentUser, onLike
   
   const status = GET_STATUS(image.likes);
   const hasLiked = currentUser ? image.likedBy.includes(currentUser) : false;
+  
   const isOwner = currentUser === image.creator;
+  const isAdmin = currentUser === ADMIN_NAME;
+  const canDelete = isOwner || isAdmin;
 
   useEffect(() => {
     setShowStatusPop(true);
@@ -35,8 +38,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, currentUser, onLike
     setTimeout(() => setIsLiking(false), 500);
   };
 
-  const handleDelete = () => {
-    if (confirm("정말로 이 작품을 삭제할까요? 지워진 작품은 다시 되돌릴 수 없어요! 😢")) {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 클릭 이벤트 전파 방지
+    const msg = isAdmin 
+      ? `[관리자 전용] 이 게시물을 영구히 삭제할까요?`
+      : `정말로 내 작품을 삭제할까요?`;
+      
+    if (confirm(msg)) {
       onDelete(image.id, (image as any).firebaseId);
     }
   };
@@ -51,20 +59,25 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, currentUser, onLike
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-white hover:border-indigo-100 transition-all duration-300 flex flex-col h-full hover:shadow-2xl group/card relative">
+    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-white hover:border-indigo-100 transition-all duration-300 flex flex-col h-full hover:shadow-2xl group relative">
       <div className="relative overflow-hidden aspect-square">
+        {/* 상태 라벨 (인기, 전설 등) */}
         <div className={`absolute top-4 left-4 ${status.color} px-3 py-1 rounded-full text-[10px] font-black shadow-md z-10 flex items-center space-x-1 transition-all ${showStatusPop ? 'scale-125 rotate-3' : 'scale-100'}`}>
           <span>{status.icon}</span>
           <span>{status.label}</span>
         </div>
 
-        {isOwner && (
+        {/* 삭제 버튼: 관리자는 항상 노출(block), 일반 사용자는 호버 시에만 노출 */}
+        {canDelete && (
           <button 
             onClick={handleDelete}
-            className="absolute top-4 right-4 bg-red-100 text-red-500 p-2 rounded-xl z-20 opacity-0 group-hover/card:opacity-100 hover:bg-red-500 hover:text-white transition-all shadow-lg"
-            title="작품 삭제하기"
+            className={`absolute top-4 right-4 p-3 rounded-2xl z-50 shadow-2xl border-2 border-white transition-all transform hover:scale-110 active:scale-95
+              ${isAdmin 
+                ? 'bg-indigo-600 text-white block' 
+                : 'bg-red-500 text-white hidden group-hover:block opacity-90 hover:opacity-100'}`}
+            title={isAdmin ? "관리자 권한으로 삭제" : "내 작품 삭제"}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
@@ -73,7 +86,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, currentUser, onLike
         <img 
           src={image.url} 
           alt={image.title} 
-          className="w-full h-full object-cover pixelated transition-transform duration-700 group-hover/card:scale-110"
+          className="w-full h-full object-cover pixelated transition-transform duration-700 group-hover:scale-110"
         />
       </div>
 
