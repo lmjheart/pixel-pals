@@ -6,7 +6,7 @@ import { Layout } from './components/Layout';
 import { ImageCard } from './components/ImageCard';
 import { UploadForm } from './components/UploadForm';
 import { PixelArtImage, Comment } from './types';
-import { INITIAL_ART } from './constants';
+import { INITIAL_ART, ADMIN_NAME } from './constants';
 
 const FIREBASE_DB_URL = "https://pixelpals-342d3-default-rtdb.asia-southeast1.firebasedatabase.app";
 
@@ -81,7 +81,7 @@ const App: React.FC = () => {
       const name = loginName.trim();
       setCurrentUser(name);
       try { localStorage.setItem('pixelpals_user', name); } catch (err) {}
-      addNotification(`환영합니다, ${name}님! 🌟`);
+      addNotification(name === ADMIN_NAME ? "관리자 모드로 접속했습니다 🛡️" : `반가워요, ${name}님! 🌟`);
       setShowLoginModal(false);
       setLoginName('');
     }
@@ -126,10 +126,10 @@ const App: React.FC = () => {
     setImages(prev => prev.filter(img => img.id !== id));
     if (db && firebaseId) {
       remove(ref(db, `images/${firebaseId}`))
-        .then(() => addNotification("작품이 갤러리에서 제거되었습니다. 🗑️"))
+        .then(() => addNotification("게시물이 갤러리에서 완전히 제거되었습니다. 🗑️"))
         .catch(err => console.error("삭제 실패:", err));
     } else {
-      addNotification("작품을 삭제했습니다.");
+      addNotification("작품을 리스트에서 지웠습니다.");
     }
   };
 

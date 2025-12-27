@@ -1,6 +1,9 @@
 
 import { PixelArtImage } from './types';
 
+// 이 이름을 관리자 닉네임으로 사용하세요.
+export const ADMIN_NAME = '픽셀관리자';
+
 export const INITIAL_ART: PixelArtImage[] = [
   {
     id: '1',
