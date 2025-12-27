@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
 import { getDatabase, ref, onValue, push, update, remove } from 'firebase/database';
-import { Layout } from './components/Layout';
-import { ImageCard } from './components/ImageCard';
-import { UploadForm } from './components/UploadForm';
+import { Layout } from './Layout';
+import { ImageCard } from './ImageCard';
+import { UploadForm } from './UploadForm';
 import { PixelArtImage, Comment } from './types';
 import { INITIAL_ART, ADMIN_NAME } from './constants';
 
